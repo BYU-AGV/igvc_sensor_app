@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primaryColor: Colors.black,
-//        accentColor: Colors.grey,
+        accentColor: Colors.grey,
 //        primarySwatch: Colors.grey,
       ),
       home: MyHomePage(title: 'IGVC Sensors'),
@@ -28,28 +28,51 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  var sensors = [new Sensor("Camera's")];
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    var sensors = [
+      new Sensor(title: "Camera's", icon: Icons.camera_alt),
+      new Sensor(title: "IMU", icon: Icons.accessibility),
+      new Sensor(title: "Compass", icon: Icons.navigation),
+      new Sensor(title: "Fingerprint", icon: Icons.fingerprint),
+      new Sensor(title: "NFC", icon: Icons.nfc)
+    ];
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text(widget.title)),
       ),
       body: Center(
         child: GridView.count(
-          crossAxisCount: 2,
-          children: List.generate(sensors.length, (index) {
-            return Text(sensors[index].name);
-          })
-        ),
+            crossAxisCount: 2,
+            padding: EdgeInsets.all(16),
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            children: List.generate(sensors.length, (index) {
+              return Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).accentColor,
+                    borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        sensors[index].icon,
+                        color: Colors.grey[300],
+                        size: 128,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          sensors[index].title,
+                          style: Theme.of(context).textTheme.headline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            })),
       ),
     );
   }

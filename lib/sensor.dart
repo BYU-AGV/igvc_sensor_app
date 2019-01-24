@@ -1,7 +1,8 @@
+import 'package:flutter/cupertino.dart';
+
 class Sensor {
-  String _name;
+  String title;
+  IconData icon;
 
-  Sensor(this._name);
-
-  String get name => _name;
+  Sensor({this.title, this.icon});
 }
