@@ -17,7 +17,7 @@ dependencies:
     sdk: flutter
 
   camera: ^0.2.9+1 # camera package for flutter, can do multiple cameras
-  usb_serial: ^0.1.1 # only works on android, Apple is stingy about stuff
+#  usb_serial: ^0.1.1 # only works on android, Apple is stingy about stuff
   location: ^1.4.1 # GPS package, technically redundant but will perform better for us
   sensors: ^0.3.5 # other sensors, IMU, gyroscope etc.
   geolocator: ^2.1.1 # geolocation library, might be useful
