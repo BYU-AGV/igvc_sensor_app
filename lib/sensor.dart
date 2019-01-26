@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
-class Sensor {
+abstract class Sensor {
   String title;
   IconData icon;
 
   Sensor({this.title, this.icon});
+
+  Widget buildPage();
 }
