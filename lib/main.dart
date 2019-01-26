@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:igvc/Cameras.dart';
 import 'package:igvc/imu.dart';
+import 'server.dart';
 
 void main() => runApp(MyApp());
 
@@ -45,6 +46,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Center(child: Text(widget.title)),
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Icon(
+                Icons.gps_fixed,
+                color: Colors.white,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+            ),
+            ListTile(
+              title: Text(
+                "Connect to Server",
+                style: Theme.of(context).textTheme.title,
+              ),
+              onTap: () async {
+                final result = await showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return ServerDialog();
+                    });
+              },
+            ),
+          ],
+        ),
+      ),
       body: Center(
         child: GridView.count(
             crossAxisCount: 2,
@@ -53,10 +84,11 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisSpacing: 16,
             children: List.generate(sensors.length, (index) {
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  final result = await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => sensors[index].buildPage()),
+                    MaterialPageRoute(
+                        builder: (context) => sensors[index].buildPage()),
                   );
                 },
                 child: Container(

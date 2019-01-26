@@ -26,8 +26,9 @@ class IMUPage extends StatefulWidget {
 }
 
 class IMUPageState extends State<IMUPage> {
-  double accel_x, accel_y, accel_z;
+  double accel_x, accel_y, accel_z, user_x, user_y, user_z;
   List<charts.Series> chartData;
+  bool dropped = false;
 
   Widget _buildTile(String text) {
     return Padding(
@@ -36,9 +37,6 @@ class IMUPageState extends State<IMUPage> {
         decoration: BoxDecoration(
           color: Colors.grey[500],
           borderRadius: BorderRadius.all(Radius.circular(16)),
-//          boxShadow: List<BoxShadow> [
-//
-//          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -51,21 +49,16 @@ class IMUPageState extends State<IMUPage> {
     );
   }
 
-  List<charts.Series<IMUData, int>> _generateData() {
-    var data = [
-      new IMUData(DateTime.now(), 0),
-      new IMUData(DateTime.now(), 0),
-      new IMUData(DateTime.now(), 0),
-      new IMUData(DateTime.now(), 0),
-      new IMUData(DateTime.now(), 0),
-      new IMUData(DateTime.now(), 0),
-      new IMUData(DateTime.now(), 0),
-      new IMUData(DateTime.now(), 0),
-    ];
-
-    return [
-      new charts.Series(id: 'IMU', data: data, domainFn: (IMUData imu,  _) => imu.acceleration.toInt(), measureFn: (IMUData imu, _) => imu.acceleration)
-    ];
+  // Builds the tile to display the sensor data
+  Widget _buildTitle(String title) {
+    return Center(
+        child: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.headline,
+      ),
+    ));
   }
 
   @override
@@ -78,27 +71,47 @@ class IMUPageState extends State<IMUPage> {
       body: ListView(
         padding: EdgeInsets.all(8),
         children: <Widget>[
+          _buildTitle("Accelorometer"),
           _buildTile("X: " + accel_x.toString()),
           _buildTile("Y: " + accel_y.toString()),
           _buildTile("Z: " + accel_z.toString()),
-          new charts.LineChart(chartData, animate: true,)
+          _buildTitle("User Accelorometer"),
+          _buildTile("X: " + user_x.toString()),
+          _buildTile("Y: " + user_y.toString()),
+          _buildTile("Z: " + user_z.toString()),
         ],
       ),
     );
   }
 
+  // Set the accelerometer callbacks
   @override
-  @protected
-  @mustCallSuper
   void initState() {
     super.initState();
     accelerometerEvents.listen((event) {
-      setState(() {
-        accel_x = event.x;
-        accel_y = event.y;
-        accel_z = event.z;
-      });
+      if (dropped != true) {
+        setState(() {
+          accel_x = event.x;
+          accel_y = event.y;
+          accel_z = event.z;
+        });
+      }
     });
+    userAccelerometerEvents.listen((event) {
+      if (dropped != true) {
+        setState(() {
+          user_x = event.x;
+          user_y = event.y;
+          user_z = event.z;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    dropped = true;
   }
 }
 
