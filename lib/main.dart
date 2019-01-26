@@ -30,6 +30,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String serverURL;
+
   @override
   Widget build(BuildContext context) {
     var sensors = [
@@ -61,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               title: Text(
-                "Connect to Server",
+                (serverURL == null || serverURL == "") ? "Connect to Server" : "Server: " + serverURL,
                 style: Theme.of(context).textTheme.title,
               ),
               onTap: () async {
@@ -71,6 +73,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     builder: (context) {
                       return ServerDialog();
                     });
+                setState(() {
+                  if (result != null) {
+                    serverURL = result;
+                  } else {
+                    serverURL = null;
+                  }
+                });
               },
             ),
           ],
