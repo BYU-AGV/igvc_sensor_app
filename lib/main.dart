@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:igvc/Cameras.dart';
 import 'package:igvc/imu.dart';
 import 'server.dart';
+import 'package:sensors/sensors.dart';
+import 'server.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,7 +24,13 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key, this.title}) : super(key: key) {
+    accelerometerEvents.listen((event) {
+      if (server.status == ServerStatus.CONNECTED) {
+        server.sendData(IMUEvent(event.x, event.y, event.z));
+      }
+    });
+  }
   final String title;
 
   @override
@@ -30,6 +38,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  ServerStatus state;
   String serverURL;
 
   @override
@@ -73,13 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     builder: (context) {
                       return ServerDialog();
                     });
-                setState(() {
-                  if (result != null) {
-                    serverURL = result;
-                  } else {
-                    serverURL = null;
-                  }
-                });
+                server.connect(result);
               },
             ),
           ],
@@ -128,5 +131,13 @@ class _MyHomePageState extends State<MyHomePage> {
             })),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    server.addStateListener(() {
+      state = server.status;
+    });
   }
 }

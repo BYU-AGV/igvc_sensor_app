@@ -1,7 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:async';
-import 'dart:io';
+
+enum ServerStatus {PINGING, CONNECTED, DISCONNECTED, ERROR}
+Server instance;
+
+abstract class Serializable {
+  Map<String, dynamic> toJson();
+}
+
+Server get server {
+  if (instance == null) {
+    instance = new Server();
+  }
+  return instance;
+}
+
+
+class Server {
+  ServerStatus _status = ServerStatus.DISCONNECTED;
+  List<VoidCallback> _onServerStateChange;
+  http.Client client;
+  String serverURI;
+
+  Server() {
+    client = http.Client();
+  }
+
+  void addStateListener(VoidCallback callback) {
+    _onServerStateChange.add(callback);
+  }
+
+  void _changeServerState(ServerStatus status) {
+    _status = status;
+    _triggerStateChange();
+  }
+
+  ServerStatus get status => _status;
+
+  // Triggers the listeners
+  void _triggerStateChange() {
+    for (var call in _onServerStateChange) {
+      call();
+    }
+  }
+
+  // Pings a server and returns whether or not the server is active
+  Future<bool> pingServer(String uri) async {
+    await http.get(uri).then((response) {
+      return true;
+    });
+    return false;
+  }
+
+  void disconnect() {
+    _changeServerState(ServerStatus.DISCONNECTED);
+  }
+
+  Future<bool> connect(String url) async {
+    _changeServerState(ServerStatus.PINGING);
+    if (await pingServer(url)) {
+      _changeServerState(ServerStatus.CONNECTED);
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> sendData(Serializable data) async {
+    if (_status == ServerStatus.CONNECTED) {
+      await client.post(serverURI, body: data.toJson()).then((response) {
+        return true;
+      }).catchError((error) {
+        _changeServerState(ServerStatus.ERROR);
+      });
+    }
+    return false;
+  }
+}
 
 class ServerDialog extends StatefulWidget {
   @override

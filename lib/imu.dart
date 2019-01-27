@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:igvc/sensor.dart';
 import 'package:sensors/sensors.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'server.dart';
 
 class IMU extends Sensor {
   IMU({String title, IconData icon});
@@ -121,4 +122,34 @@ class IMUData {
   final double acceleration;
 
   IMUData(this.time, this.acceleration);
+}
+
+class IMUEvent implements Serializable {
+  double x;
+  double y;
+  double z;
+  IMUEvent(this.x, this.y, this.z);
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'type': 'imu',
+    'accel_x': x,
+    'accel_y': y,
+    'accel_z': z
+  };
+}
+
+class UserIMUEvent implements Serializable{
+  double x;
+  double y;
+  double z;
+  UserIMUEvent(this.x, this.y, this.z);
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'type': 'imu_user',
+    'accel_x': x,
+    'accel_y': y,
+    'accel_z': z
+  };
 }
