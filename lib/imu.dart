@@ -133,9 +133,9 @@ class IMUEvent implements Serializable {
   @override
   Map<String, dynamic> toJson() => {
     'type': 'imu',
-    'accel_x': x,
-    'accel_y': y,
-    'accel_z': z
+    'accel_x': x.toString(),
+    'accel_y': y.toString(),
+    'accel_z': z.toString()
   };
 }
 
@@ -148,8 +148,8 @@ class UserIMUEvent implements Serializable{
   @override
   Map<String, dynamic> toJson() => {
     'type': 'imu_user',
-    'accel_x': x,
-    'accel_y': y,
-    'accel_z': z
+    'accel_x': x.toString(),
+    'accel_y': y.toString(),
+    'accel_z': z.toString()
   };
 }

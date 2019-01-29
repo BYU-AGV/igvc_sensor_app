@@ -11,10 +11,10 @@ abstract class Serializable {
 Server get server {
   if (instance == null) {
     instance = new Server();
+    print("Creating new server instance");
   }
   return instance;
 }
-
 
 class Server {
   ServerStatus _status = ServerStatus.DISCONNECTED;
@@ -39,9 +39,9 @@ class Server {
 
   // Triggers the listeners
   void _triggerStateChange() {
-    for (var call in _onServerStateChange) {
-      call();
-    }
+//    for (var call in _onServerStateChange) {
+////      call();
+//    }
   }
 
   // Pings a server and returns whether or not the server is active
@@ -57,20 +57,23 @@ class Server {
   }
 
   Future<bool> connect(String url) async {
+    print("Pinging: " + url);
     _changeServerState(ServerStatus.PINGING);
-    if (await pingServer(url)) {
+    pingServer(url + '/ping').then((bool) {
+      print("Connected");
+      serverURI = url;
       _changeServerState(ServerStatus.CONNECTED);
-      return true;
-    }
-    return false;
+    });
   }
 
   Future<bool> sendData(Serializable data) async {
     if (_status == ServerStatus.CONNECTED) {
-      await client.post(serverURI, body: data.toJson()).then((response) {
+      print("Sending data: " + serverURI + '/accel');
+      await client.post(serverURI + '/accel', body: data.toJson()).then((response) {
         return true;
       }).catchError((error) {
-        _changeServerState(ServerStatus.ERROR);
+        print(error);
+//        _changeServerState(ServerStatus.ERROR);
       });
     }
     return false;
@@ -164,7 +167,7 @@ class ServerDialogState extends State<ServerDialog> {
               child: Text("CONNECT",),
               borderSide: BorderSide(color: Colors.green),
               onPressed: () {
-                Navigator.pop(context, controller.text);
+                Navigator.pop(context, "http://" + controller.text);
               },
               textColor: Colors.green,
             ),

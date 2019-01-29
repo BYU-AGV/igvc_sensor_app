@@ -27,6 +27,7 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key) {
     accelerometerEvents.listen((event) {
       if (server.status == ServerStatus.CONNECTED) {
+        print("Got data");
         server.sendData(IMUEvent(event.x, event.y, event.z));
       }
     });
@@ -133,11 +134,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    server.addStateListener(() {
-      state = server.status;
-    });
-  }
+//  @override
+//  void initState() {
+//    super.initState();
+//    server.addStateListener(() {
+//      state = server.status;
+//    });
+//  }
 }
