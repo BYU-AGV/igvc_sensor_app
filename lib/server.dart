@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum ServerStatus {PINGING, CONNECTED, DISCONNECTED, ERROR}
 Server instance;
@@ -20,29 +21,35 @@ Server get server {
 class Server {
   ServerStatus _status = ServerStatus.DISCONNECTED;
   List<VoidCallback> _onServerStateChange;
+  static List<VoidCallback> _stateChangeCallbacks = [];
   http.Client client;
   String serverURI;
 
   Server() {
     client = http.Client();
+    _status = ServerStatus.DISCONNECTED;
   }
 
   void addStateListener(VoidCallback callback) {
     _onServerStateChange.add(callback);
   }
 
+  static void addChangeListener(VoidCallback callback) {
+    _stateChangeCallbacks.add(callback);
+  }
+
   void _changeServerState(ServerStatus status) {
     _status = status;
-    _triggerStateChange();
+    Server._triggerStateChange();
   }
 
   ServerStatus get status => _status;
 
   // Triggers the listeners
-  void _triggerStateChange() {
-//    for (var call in _onServerStateChange) {
-////      call();
-//    }
+  static void _triggerStateChange() {
+    for (var call in _stateChangeCallbacks) {
+      call();
+    }
   }
 
   // Pings a server and returns whether or not the server is active
@@ -60,18 +67,20 @@ class Server {
   Future<bool> connect(String url) async {
     print("Pinging: " + url);
     _changeServerState(ServerStatus.PINGING);
-    pingServer(url + '/ping').then((bool) {
+    await pingServer(url + '/ping').then((bool) {
       print("Connected");
       serverURI = url;
       _changeServerState(ServerStatus.CONNECTED);
+      return true;
     });
+    return false;
   }
 
-  Future<bool> sendData(Serializable data) async {
+  Future<bool> sendData(String extension, Serializable data) async {
     if (_status == ServerStatus.CONNECTED) {
-      print("Sending data: " + serverURI + '/webhook/accelerometer');
+//      print("Sending data: " + serverURI + '/webhook/accelerometer');
       print("Data: " + data.toJson().toString());
-      await client.post(serverURI + '/webhook/accelerometer', body: data.encode()).then((response) {
+      await client.post(serverURI + extension, body: data.toJson()).then((response) {
         return true;
       }).catchError((error) {
         print(error);
@@ -91,6 +100,20 @@ class ServerDialogState extends State<ServerDialog> {
   final TextEditingController controller = new TextEditingController();
   bool serverPinged = false;
   bool pinging = false;
+  SharedPreferences prefs;
+
+
+  @override
+  void initState() {
+    super.initState();
+    setUp();
+  }
+
+  void setUp() async {
+    prefs = await SharedPreferences.getInstance();
+    final str = prefs.getString('serverURL');
+    controller.text = str;
+  }
 
   Widget _buildServerStatus() {
     return Padding(

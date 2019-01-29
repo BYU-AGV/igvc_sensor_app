@@ -3,7 +3,9 @@ import 'package:igvc/Cameras.dart';
 import 'package:igvc/imu.dart';
 import 'server.dart';
 import 'package:sensors/sensors.dart';
-import 'server.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart';
+import 'gps.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,20 +29,33 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key) {
     accelerometerEvents.listen((event) {
       if (server.status == ServerStatus.CONNECTED) {
-        print("Got data");
-        server.sendData(IMUEvent(event.x, event.y, event.z));
+//        server.sendData('/webhook/accelerometer', IMUEvent(event.x, event.y, event.z));
+      }
+    });
+    userAccelerometerEvents.listen((event) {
+      if (server.status == ServerStatus.CONNECTED) {
+//        server.sendData('/webhook/accelerometer', UserIMUEvent(event.x, event.y, event.z));
+      }
+    });
+    final location = new Location();
+    location.onLocationChanged().listen((Map<String, double> loc) {
+      print("Locaiotn: " + loc['latitude'].toString());
+      if (server.status == ServerStatus.CONNECTED) {
+        server.sendData('/webhook/gps', GPSEvent(loc));
       }
     });
   }
   final String title;
+//  Location location;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ServerStatus state;
+  ServerStatus state = ServerStatus.DISCONNECTED;
   String serverURL;
+  SharedPreferences prefs;
 
   @override
   Widget build(BuildContext context) {
@@ -73,17 +88,30 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               title: Text(
-                (serverURL == null || serverURL == "") ? "Connect to Server" : "Server: " + serverURL,
+                (state == ServerStatus.DISCONNECTED) ? "Connect to server" : (state == ServerStatus.PINGING) ? "Pinging..." : "Disconnect",
                 style: Theme.of(context).textTheme.title,
               ),
               onTap: () async {
-                final result = await showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) {
-                      return ServerDialog();
+                print(state);
+                if (state == ServerStatus.CONNECTED) {
+                  server.disconnect();
+                  setState(() {
+                    state = ServerStatus.DISCONNECTED;
+                  });
+                } else {
+                  final result = await showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) {
+                        return ServerDialog();
+                      });
+                  if (await server.connect(result)) {
+                    setState(() {
+                      state = ServerStatus.CONNECTED;
+                      prefs.setString('serverURL', result.toString());
                     });
-                server.connect(result);
+                  }
+                }
               },
             ),
           ],
@@ -134,11 +162,18 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-//  @override
-//  void initState() {
-//    super.initState();
-//    server.addStateListener(() {
-//      state = server.status;
-//    });
-//  }
+  void setUp() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Server.addChangeListener(() {
+      setState(() {
+        state = server.status;
+      });
+    });
+    setUp();
+  }
 }
