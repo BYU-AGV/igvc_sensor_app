@@ -78,13 +78,11 @@ class Server {
 
   Future<bool> sendData(String extension, Serializable data) async {
     if (_status == ServerStatus.CONNECTED) {
-//      print("Sending data: " + serverURI + '/webhook/accelerometer');
       print("Data: " + data.toJson().toString());
       await client.post(serverURI + extension, body: data.toJson()).then((response) {
         return true;
       }).catchError((error) {
         print(error);
-//        _changeServerState(ServerStatus.ERROR);
       });
     }
     return false;

@@ -29,17 +29,16 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key) {
     accelerometerEvents.listen((event) {
       if (server.status == ServerStatus.CONNECTED) {
-//        server.sendData('/webhook/accelerometer', IMUEvent(event.x, event.y, event.z));
+        server.sendData('/webhook/accelerometer', IMUEvent(event.x, event.y, event.z));
       }
     });
     userAccelerometerEvents.listen((event) {
       if (server.status == ServerStatus.CONNECTED) {
-//        server.sendData('/webhook/accelerometer', UserIMUEvent(event.x, event.y, event.z));
+        server.sendData('/webhook/accelerometer', UserIMUEvent(event.x, event.y, event.z));
       }
     });
     final location = new Location();
     location.onLocationChanged().listen((Map<String, double> loc) {
-      print("Locaiotn: " + loc['latitude'].toString());
       if (server.status == ServerStatus.CONNECTED) {
         server.sendData('/webhook/gps', GPSEvent(loc));
       }
