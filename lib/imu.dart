@@ -3,6 +3,7 @@ import 'package:igvc/sensor.dart';
 import 'package:sensors/sensors.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'server.dart';
+import 'dart:convert';
 
 class IMU extends Sensor {
   IMU({String title, IconData icon});
@@ -131,12 +132,22 @@ class IMUEvent implements Serializable {
   IMUEvent(this.x, this.y, this.z);
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
     'type': 'imu',
-    'accel_x': x.toString(),
-    'accel_y': y.toString(),
-    'accel_z': z.toString()
+    'x': x.toString(),
+    'y': y.toString(),
+    'z': z.toString()
   };
+
+  @override
+  String toJson() {
+    var body = {};
+    body['type'] = "imu";
+    body['x'] = x;
+    body['y'] = y;
+    body['z'] = z;
+    return json.encode(body);
+  }
 }
 
 class UserIMUEvent implements Serializable{
@@ -144,12 +155,21 @@ class UserIMUEvent implements Serializable{
   double y;
   double z;
   UserIMUEvent(this.x, this.y, this.z);
-
+  
+  String toJson() {
+    var body = {};
+    body['type'] = "imu_user";
+    body['x'] = x;
+    body['y'] = y;
+    body['z'] = z;
+    return json.encode(body);
+  }
+  
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
     'type': 'imu_user',
-    'accel_x': x.toString(),
-    'accel_y': y.toString(),
-    'accel_z': z.toString()
+    'x': x.toString(),
+    'y': y.toString(),
+    'z': z.toString()
   };
 }

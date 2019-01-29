@@ -5,7 +5,8 @@ enum ServerStatus {PINGING, CONNECTED, DISCONNECTED, ERROR}
 Server instance;
 
 abstract class Serializable {
-  Map<String, dynamic> toJson();
+  String toJson();
+  Map<String, dynamic> toMap();
 }
 
 Server get server {
@@ -68,8 +69,9 @@ class Server {
 
   Future<bool> sendData(Serializable data) async {
     if (_status == ServerStatus.CONNECTED) {
-      print("Sending data: " + serverURI + '/accel');
-      await client.post(serverURI + '/accel', body: data.toJson()).then((response) {
+      print("Sending data: " + serverURI + '/webhook/accelerometer');
+      print("Data: " + data.toJson().toString());
+      await client.post(serverURI + '/webhook/accelerometer', body: data.encode()).then((response) {
         return true;
       }).catchError((error) {
         print(error);
