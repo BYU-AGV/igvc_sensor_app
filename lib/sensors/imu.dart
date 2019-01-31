@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:igvc/sensor.dart';
+import 'package:igvc/sensors/sensor.dart';
 import 'package:sensors/sensors.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'server.dart';
+import 'package:igvc/server.dart';
 import 'dart:convert';
 
 class IMU extends Sensor {

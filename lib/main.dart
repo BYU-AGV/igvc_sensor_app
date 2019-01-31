@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:igvc/Cameras.dart';
-import 'package:igvc/imu.dart';
+import 'package:igvc/sensors/Cameras.dart';
+import 'package:igvc/sensors/imu.dart';
 import 'server.dart';
 import 'package:sensors/sensors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart';
-import 'gps.dart';
-import 'gyroscope.dart';
-import 'compass.dart';
+import 'package:igvc/sensors/gps.dart';
+import 'package:igvc/sensors/gyroscope.dart';
+import 'package:igvc/sensors/compass.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 
 void main() => runApp(MyApp());
@@ -54,7 +54,6 @@ class MyHomePage extends StatefulWidget {
       }
     });
     FlutterCompass.events.listen((double heading) {
-      print("Compass event: " + heading.toString());
       if (server.status == ServerStatus.CONNECTED) {
         server.sendData('/webhook/compass', CompassEvent(heading));
       }
@@ -79,12 +78,9 @@ class _MyHomePageState extends State<MyHomePage> {
     var sensors = [
       new Cameras.def(),
       new IMU.def(),
-      new Cameras(title: "GPS", icon: Icons.gps_fixed),
-      new Cameras(title: "Compass", icon: Icons.navigation),
-      new Cameras(title: "Fingerprint", icon: Icons.fingerprint),
-      new Cameras(title: "NFC", icon: Icons.nfc),
-      new Cameras(title: "Proximity", icon: Icons.format_size),
-      new Cameras(title: "Gyroscope", icon: Icons.blur_circular)
+      new GPS.def(),
+      new Compass.def(),
+      new Gyroscope.def(),
     ];
     return Scaffold(
       appBar: AppBar(

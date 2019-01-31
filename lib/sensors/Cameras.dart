@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:igvc/sensor.dart';
+import 'package:igvc/sensors/sensor.dart';
 import 'package:camera/camera.dart';
 
 class Cameras implements Sensor {
