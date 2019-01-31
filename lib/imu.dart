@@ -129,7 +129,8 @@ class IMUEvent implements Serializable {
   double x;
   double y;
   double z;
-  IMUEvent(this.x, this.y, this.z);
+  int duration;
+  IMUEvent(this.x, this.y, this.z, this.duration);
 
   @override
   Map<String, dynamic> toMap() => {
@@ -146,6 +147,7 @@ class IMUEvent implements Serializable {
     body['x'] = x;
     body['y'] = y;
     body['z'] = z;
+    body['duration'] = duration;
     return json.encode(body);
   }
 }
@@ -154,7 +156,8 @@ class UserIMUEvent implements Serializable{
   double x;
   double y;
   double z;
-  UserIMUEvent(this.x, this.y, this.z);
+  int duration;
+  UserIMUEvent(this.x, this.y, this.z, this.duration);
   
   String toJson() {
     var body = {};
@@ -162,6 +165,7 @@ class UserIMUEvent implements Serializable{
     body['x'] = x;
     body['y'] = y;
     body['z'] = z;
+    body['duration'] = duration;
     return json.encode(body);
   }
   

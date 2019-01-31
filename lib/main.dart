@@ -6,6 +6,9 @@ import 'package:sensors/sensors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart';
 import 'gps.dart';
+import 'gyroscope.dart';
+import 'compass.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,13 +32,20 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key) {
     accelerometerEvents.listen((event) {
       if (server.status == ServerStatus.CONNECTED) {
-        server.sendData('/webhook/accelerometer', IMUEvent(event.x, event.y, event.z));
+        server.sendData('/webhook/accelerometer', IMUEvent(event.x, event.y, event.z, DateTime.now().difference(lastTime).inMilliseconds));
+      }
+      lastTime = DateTime.now();
+    });
+    gyroscopeEvents.listen((event) {
+      if (server.status == ServerStatus.CONNECTED) {
+        server.sendData('/webhook/gyroscope', GyroEvent(event.x, event.y, event.z));
       }
     });
     userAccelerometerEvents.listen((event) {
       if (server.status == ServerStatus.CONNECTED) {
-        server.sendData('/webhook/accelerometer', UserIMUEvent(event.x, event.y, event.z));
+        server.sendData('/webhook/accelerometer', UserIMUEvent(event.x, event.y, event.z, DateTime.now().difference(lastUserTime).inMilliseconds));
       }
+      lastUserTime = DateTime.now();
     });
     final location = new Location();
     location.onLocationChanged().listen((Map<String, double> loc) {
@@ -43,8 +53,16 @@ class MyHomePage extends StatefulWidget {
         server.sendData('/webhook/gps', GPSEvent(loc));
       }
     });
+    FlutterCompass.events.listen((double heading) {
+      print("Compass event: " + heading.toString());
+      if (server.status == ServerStatus.CONNECTED) {
+        server.sendData('/webhook/compass', CompassEvent(heading));
+      }
+    });
   }
   final String title;
+  DateTime lastTime = DateTime.now();
+  DateTime lastUserTime = DateTime.now();
 //  Location location;
 
   @override
