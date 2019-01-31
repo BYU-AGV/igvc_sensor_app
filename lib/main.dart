@@ -91,10 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Icon(
-                Icons.gps_fixed,
-                color: Colors.white,
-              ),
+              child: Image.asset("images/mechatronics-logo-lg-white.png", fit: BoxFit.fitHeight,),
               decoration: BoxDecoration(
                 color: Colors.black,
               ),
