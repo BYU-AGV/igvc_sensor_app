@@ -3,6 +3,7 @@ import 'package:igvc/server.dart';
 import 'dart:convert';
 import 'sensor.dart';
 import 'package:location/location.dart';
+import 'package:igvc/server.dart';
 
 class GPS extends Sensor {
   GPS({String title, IconData icon});
@@ -74,6 +75,9 @@ class GPSPageState extends State<GPSPage> {
    super.initState();
    _dropped = false;
     location.onLocationChanged().listen((Map<String, double> loc) {
+      if (server.status == ServerStatus.CONNECTED) {
+        server.sendData('/webhook/gps', GPSEvent(loc));
+      }
       if (_dropped != true) {
         setState(() {
           _longitude = loc['longitude'];
